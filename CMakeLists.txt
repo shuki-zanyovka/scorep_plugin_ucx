@@ -18,18 +18,43 @@ add_library(scorep_plugin_ucx
             src/utils.cpp
             src/ucx_sampling.cpp)
 
+add_library(scorep_plugin_ucx_profile
+            SHARED
+            src/scorep_plugin_ucx.cpp
+            src/utils.cpp
+            src/ucx_sampling.cpp)
+
 set_target_properties(scorep_plugin_ucx PROPERTIES CXX_STANDARD 17)
+set_target_properties(scorep_plugin_ucx_profile PROPERTIES CXX_STANDARD 17)
+
 
 target_include_directories(scorep_plugin_ucx PRIVATE
   src 
   include
   ${UCX_INCLUDE_DIRS})
+
+
+target_include_directories(scorep_plugin_ucx_profile PRIVATE
+  src 
+  include
+  ${UCX_INCLUDE_DIRS})
+  
   
 target_compile_options(scorep_plugin_ucx INTERFACE -Wall -pedantic -Wextra -fPIC)
+
+target_compile_options(scorep_plugin_ucx_profile INTERFACE -Wall -pedantic -Wextra -fPIC)
+target_compile_definitions(scorep_plugin_ucx_profile PUBLIC -DSCOREP_PLUGIN_PER_NODE_ENABLE)
+
 
 target_link_libraries(scorep_plugin_ucx PRIVATE 
   Scorep::scorep-plugin-cxx
   libucs.so)
+  
+target_link_libraries(scorep_plugin_ucx_profile PRIVATE 
+  Scorep::scorep-plugin-cxx
+  libucs.so)
+  
 
 install(TARGETS scorep_plugin_ucx DESTINATION lib)
+install(TARGETS scorep_plugin_ucx_profile DESTINATION lib)
 

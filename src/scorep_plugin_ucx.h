@@ -29,8 +29,13 @@ using MetricProperty = scorep::plugin::metric_property;
 using ThreadEventPair = std::tuple<ThreadId, std::string>;
 
 
+#if defined(SCOREP_PLUGIN_PER_NODE_ENABLE)
+class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
+    sync, per_host, scorep_clock>
+#else
 class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
     sync, once, scorep_clock>
+#endif
 {
     public:
         scorep_plugin_ucx();
