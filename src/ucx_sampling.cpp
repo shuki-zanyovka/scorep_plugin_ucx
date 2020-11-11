@@ -225,7 +225,7 @@ ucx_sampling::ucx_statistics_current_value_get(int mpi_rank, uint32_t index,
                initialize_counters_enable);
             *value = (*ucx_counters_list)[0]->value;
         }
-        else if (index-1 < ucx_counters_list->size()) {
+        else if (index < ucx_counters_list->size()) {
             *value = (*ucx_counters_list)[index-1]->value;
         }
 #if defined(UCX_SAMPLING_VERBOSE_MODE_ENABLE)

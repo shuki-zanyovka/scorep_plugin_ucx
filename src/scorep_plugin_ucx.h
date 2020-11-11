@@ -29,12 +29,12 @@ using MetricProperty = scorep::plugin::metric_property;
 using ThreadEventPair = std::tuple<ThreadId, std::string>;
 
 
-#if defined(SCOREP_PLUGIN_PER_NODE_ENABLE)
+#if defined(SCOREP_PLUGIN_PER_THREAD_ENABLE)
 class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
-    sync, per_host, scorep_clock>
+    sync_strict, per_thread, scorep_clock>
 #else
 class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
-    sync, once, scorep_clock>
+    sync_strict, once, scorep_clock>
 #endif
 {
     public:
@@ -119,26 +119,28 @@ scorep_plugin_ucx::get_current_value(int32_t id, Proxy& proxy)
          m_mpi_t_initialized = 1;
          /* get global rank */
          PMPI_Comm_rank(MPI_COMM_WORLD, &m_mpi_rank);
+         std::cout << "MPI_rank = " << m_mpi_rank << std::endl;
        }
     }
-
-#if 0
-    int mpi_rank = mpi_t_sampling_object.mpi_rank_get();
+    else {
+        /*
+           Need MPI_T initialization here since the UDP port number of the
+           UCX statistics server is derived from the process_id.
+           Also, all statistics are aggregated by MPI_rank 0 (root).
+        */
+#if defined(SCOREP_PLUGIN_PER_THREAD_ENABLE)
+        if (m_mpi_rank == 0) {
 #endif
-
-    /*
-       Need MPI_T initialization here since the UDP port number of the
-       UCX statistics server is derived from the process_id.
-       Also, all statistics are aggregated by MPI_rank 0 (root).
-    */
-    if (m_mpi_t_initialized) {// && (mpi_rank == 0)) {
-        /* Get UCX statistics */
-        ret = m_ucx_sampling.ucx_statistics_current_value_get(m_mpi_rank, id,
-                &m_ucx_counters_list, &val);
-        /* Rename UCX counters in Score-P log? only if ret != 0 */
-        if (ret) {
-           ucx_counters_scorep_update();
+            /* Get UCX statistics */
+            ret = m_ucx_sampling.ucx_statistics_current_value_get(m_mpi_rank, id,
+                    &m_ucx_counters_list, &val);
+            /* Rename UCX counters in Score-P log? only if ret != 0 */
+            if (ret) {
+               ucx_counters_scorep_update();
+            }
+#if defined(SCOREP_PLUGIN_PER_THREAD_ENABLE)
         }
+#endif
     }
 
     proxy.write(val);

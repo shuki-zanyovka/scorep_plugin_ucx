@@ -43,7 +43,7 @@ target_include_directories(scorep_plugin_ucx_profile PRIVATE
 target_compile_options(scorep_plugin_ucx INTERFACE -Wall -pedantic -Wextra -fPIC)
 
 target_compile_options(scorep_plugin_ucx_profile INTERFACE -Wall -pedantic -Wextra -fPIC)
-target_compile_definitions(scorep_plugin_ucx_profile PUBLIC -DSCOREP_PLUGIN_PER_NODE_ENABLE)
+target_compile_definitions(scorep_plugin_ucx_profile PUBLIC -DSCOREP_PLUGIN_PER_THREAD_ENABLE)
 
 
 target_link_libraries(scorep_plugin_ucx PRIVATE 
@@ -58,3 +58,8 @@ target_link_libraries(scorep_plugin_ucx_profile PRIVATE
 install(TARGETS scorep_plugin_ucx DESTINATION lib)
 install(TARGETS scorep_plugin_ucx_profile DESTINATION lib)
 
+
+add_custom_command(TARGET scorep_plugin_ucx_profile POST_BUILD
+    COMMAND rm -rf profile && mkdir profile && cp libscorep_plugin_ucx_profile.so profile/libscorep_plugin_ucx.so 
+    COMMENT "Running post build commands..."
+)
