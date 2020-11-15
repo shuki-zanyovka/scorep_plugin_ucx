@@ -34,7 +34,7 @@ class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
     sync_strict, per_thread, scorep_clock>
 #else
 class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
-    sync_strict, once, scorep_clock>
+    sync, once, scorep_clock>
 #endif
 {
     public:
@@ -53,6 +53,9 @@ class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
 
         void
         stop();
+
+        inline int
+        current_value_get(int32_t id, uint64_t *value, uint64_t *prev_value);
 
         template <typename Proxy>
         void get_current_value(int32_t id, Proxy& proxy);
@@ -102,13 +105,16 @@ class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
 };
 
 
-template <typename Proxy>
-void
-scorep_plugin_ucx::get_current_value(int32_t id, Proxy& proxy)
+inline int
+scorep_plugin_ucx::current_value_get(int32_t id, uint64_t *value, uint64_t *prev_value)
 {
-    uint64_t val = 0;
+    uint64_t prev_val;
     int ret;
     int flag;
+    int is_value_updated;
+
+    *value = 0;
+    *prev_value = 0;
 
     /* UCX counter */
     /* Enumerate PVARs */
@@ -121,6 +127,7 @@ scorep_plugin_ucx::get_current_value(int32_t id, Proxy& proxy)
          PMPI_Comm_rank(MPI_COMM_WORLD, &m_mpi_rank);
          std::cout << "MPI_rank = " << m_mpi_rank << std::endl;
        }
+       is_value_updated = 0;
     }
     else {
         /*
@@ -133,17 +140,37 @@ scorep_plugin_ucx::get_current_value(int32_t id, Proxy& proxy)
 #endif
             /* Get UCX statistics */
             ret = m_ucx_sampling.ucx_statistics_current_value_get(m_mpi_rank, id,
-                    &m_ucx_counters_list, &val);
+                      &m_ucx_counters_list, value, &prev_val);
             /* Rename UCX counters in Score-P log? only if ret != 0 */
             if (ret) {
                ucx_counters_scorep_update();
+            }
+
+            if (*value != prev_val) {
+                is_value_updated = 1;
+            }
+            else {
+                is_value_updated = 0;
             }
 #if defined(SCOREP_PLUGIN_PER_THREAD_ENABLE)
         }
 #endif
     }
 
-    proxy.write(val);
+    return is_value_updated;
+}
+
+template <typename Proxy>
+void
+scorep_plugin_ucx::get_current_value(int32_t id, Proxy& proxy)
+{
+    int is_value_updated;
+    uint64_t value;
+    uint64_t prev_value;
+
+    is_value_updated = current_value_get(id, &value, &prev_value);
+
+    proxy.write(value);
 }
 
 
@@ -151,7 +178,15 @@ template <typename Proxy>
 void
 scorep_plugin_ucx::get_optional_value(int32_t id, Proxy& proxy)
 {
-    get_current_value(id, proxy);
+    int is_value_updated;
+    uint64_t value;
+    uint64_t prev_value;
+
+    is_value_updated = current_value_get(id, &value, &prev_value);
+    if (is_value_updated) {
+        proxy.write(value);
+    }
+
 }
 
 #endif /* _SCOREP_PLUGIN_UCX_H_ */

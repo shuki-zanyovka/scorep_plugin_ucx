@@ -120,20 +120,17 @@ scorep_plugin_ucx::add_metric(const std::string& metric)
 
     /* UCX? */
     if (event == "UCX") {
-        static uint32_t current_id =
-            (SCOREP_COUNTER_ID_START_UCX + m_n_ucx_counters);
+        static uint32_t current_id = (m_n_ucx_counters - 1);
 
-        /* Shuki: TODO !!! */
         /*
-          As part of the UCX workarond:
-          Only temp counter is registered at this point,
-          its id is SCOREP_COUNTER_ID_START_UCX.
+           As part of the UCX workarond:
+           Only temporary counters are registered at this point.
         */
         id = current_id;
         current_id--;
-        if (current_id < SCOREP_COUNTER_ID_START_UCX) {
+        if (id < 0) {
             std::cout << "Warning, UCX counter id < SCOREP_COUNTER_ID_START_UCX: " <<
-                    current_id << std::endl;
+                    id << std::endl;
         }
     }
 

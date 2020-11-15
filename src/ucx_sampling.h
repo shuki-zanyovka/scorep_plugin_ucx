@@ -51,7 +51,7 @@ public:
    /* Read current value of a PVAR */
    int
    ucx_statistics_current_value_get(int mpi_rank, uint32_t index,
-         scorep_counters_list_t *ucx_counters_list, uint64_t *value);
+       scorep_counters_list_t *ucx_counters_list, uint64_t *value, uint64_t *prev_value);
 
    int
    ucx_statistics_server_start(int port);

@@ -121,6 +121,9 @@ typedef struct tag_scorep_counter_data {
     /* Recorded metric value */
     uint64_t value;
 
+    /* Recorded metric previous value */
+    uint64_t prev_value;
+
 } scorep_counter_data_t;
 
 typedef std::vector<scorep_counter_data_t *> scorep_counters_list_t;

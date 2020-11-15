@@ -110,6 +110,7 @@ ucx_sampling::recursive_scan_counters_list(ucs_stats_node_t *root,
                          counter_name_temp,
                          data_node->cls->counter_names[k]);
                 ucx_performance_counter->value = data_node->counters[k];
+                ucx_performance_counter->prev_value = (uint64_t)-1;
 
                 ucx_counters_list->push_back(ucx_performance_counter);
             }
@@ -198,7 +199,7 @@ ucx_sampling::ucx_statistics_all_counters_update(
 int
 ucx_sampling::ucx_statistics_current_value_get(int mpi_rank, uint32_t index,
         scorep_counters_list_t *ucx_counters_list,
-        uint64_t *value)
+        uint64_t *value, uint64_t *prev_value)
 {
     ucs_status_t status;
     ucs_stats_node_t *data_node;
@@ -215,24 +216,23 @@ ucx_sampling::ucx_statistics_current_value_get(int mpi_rank, uint32_t index,
     }
 #endif
 
-    /* Get local index of counters from global Score-P index */
-    index -= (SCOREP_COUNTER_ID_START_UCX);
-
     /* UCX Statistics server already up and running and counters were updated */
     if (m_counters_initialized_on_scorep) {
         if (index == 0) {
             ucx_statistics_all_counters_update(ucx_counters_list,
-               initialize_counters_enable);
-            *value = (*ucx_counters_list)[0]->value;
+                initialize_counters_enable);
         }
-        else if (index < ucx_counters_list->size()) {
-            *value = (*ucx_counters_list)[index-1]->value;
+
+        if (index < ucx_counters_list->size()) {
+            *value = (*ucx_counters_list)[index]->value;
+            *prev_value = (*ucx_counters_list)[index]->prev_value;
+            (*ucx_counters_list)[index]->prev_value = *value;
         }
-#if defined(UCX_SAMPLING_VERBOSE_MODE_ENABLE)
         else {
-            std::cout << "WARNING: UCX counter index = " << index+1 << std::endl;
+            *value = 0;
+            *prev_value = 0;
         }
-#endif
+
         return 0;
     }
 
