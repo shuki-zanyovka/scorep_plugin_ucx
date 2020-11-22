@@ -6,7 +6,7 @@
 
 scorep_plugin_ucx::scorep_plugin_ucx()
 {
-    std::cout << "Loading Metric Plugin: UCX Sampling\n";
+    DEBUG_PRINT("Loading Metric Plugin: UCX Sampling\n");
 
     m_mpi_t_initialized = 0;
 }
@@ -28,13 +28,12 @@ scorep_plugin_ucx::get_metric_properties(const std::string& metric_name)
     int assigned_event = 0;
     std::vector<MetricProperty> metric_properties;
 
-    std::cout << "scorep_plugin_ucx::get_metric_properties() called with: " <<
-            metric_name << '\n';
+    DEBUG_PRINT("scorep_plugin_ucx::get_metric_properties() called with: %s\n",
+            metric_name);
 
     auto [event, dummy] = parse_metric(metric_name, &hex_dummy);
 
-    std::cout << "Event = " << event << " dummy = " << dummy <<
-            " hex_dummy = " << hex_dummy << std::endl;
+    DEBUG_PRINT("Event=%s dummy=%u, hex_dummy=%lx\n", event, dummy, hex_dummy);
 
     if (event == "UCX") {
         uint32_t i;
@@ -46,7 +45,7 @@ scorep_plugin_ucx::get_metric_properties(const std::string& metric_name)
             m_n_ucx_counters = dummy;
         }
 
-        std::cout << "m_n_ucx_counters = " << m_n_ucx_counters << std::endl;
+        DEBUG_PRINT("m_n_ucx_counters = %u\n", m_n_ucx_counters);
 
         /*
           Create counters as place holders, we're not sure how many we
@@ -101,7 +100,7 @@ scorep_plugin_ucx::get_metric_properties(const std::string& metric_name)
 
     /* Debug print */
     if (assigned_event) {
-        std::cout << event << " = " << (uintptr_t)hex_dummy << std::endl;
+        DEBUG_PRINT("%s = %lx\n", event, (uintptr_t)hex_dummy);
     }
 
     return metric_properties;
@@ -116,7 +115,7 @@ scorep_plugin_ucx::add_metric(const std::string& metric)
 
     auto [event, period] = parse_metric(metric, &hex_dummy);
 
-    std::cout << "add_metric() called with: " << metric << '\n';
+    DEBUG_PRINT("add_metric() called with: %s\n", metric);
 
     /* UCX? */
     if (event == "UCX") {
@@ -141,14 +140,14 @@ scorep_plugin_ucx::add_metric(const std::string& metric)
 void
 scorep_plugin_ucx::start()
 {
-    std::cout << "scorep_plugin_ucx::start()\n";
+    DEBUG_PRINT("scorep_plugin_ucx::start()\n");
 }
 
 
 void
 scorep_plugin_ucx::stop()
 {
-    std::cout << "scorep_plugin_ucx::stop()";
+    DEBUG_PRINT("scorep_plugin_ucx::stop()\n");
 }
 
 
@@ -160,10 +159,6 @@ scorep_plugin_ucx::scorep_metric_rename(uint32_t counter_id, const char *counter
 
     TEMPORARY_UCX_COUNTER_NAME_GEN(temp_counter_name,
             m_ucx_metric_name, temp_counter_name, counter_id);
-    //printf("m_ucx_metric_name = %s, temp_counter_name=%s\n", m_ucx_metric_name.c_str(),
-    //        temp_counter_name.c_str());
-
-    //std::cout<<"Searching for: " << temp_counter_name << std::endl;
 
     m_pSCOREP_Strictly_Synchronous_metric_name_update_func(temp_counter_name.c_str(),
             counter_new_name, m_ucx_metric_name.c_str(), num_metrics_set);

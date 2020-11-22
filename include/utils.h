@@ -8,6 +8,15 @@
 #include <tuple>
 #include <vector>
 
+/* Enable Debug prints */
+//#define UCX_DEBUG_ENABLE
+
+#if defined(UCX_DEBUG_ENABLE)
+#define DEBUG_PRINT printf
+#else
+#define DEBUG_PRINT
+#endif
+
 std::string
 to_lower (const std::string& input_string);
 

@@ -18,15 +18,6 @@ extern "C" {
 
 #include <plugin_types.h>
 
-/* Enable Debug prints */
-//#define UCX_DEBUG_ENABLE
-
-#if defined(UCX_DEBUG_ENABLE)
-#define DEBUG_PRINT printf
-#else
-#define DEBUG_PRINT
-#endif
-
 #define THRESHOLD 						0
 #define NOT_FOUND 						-1
 #define FALSE 							0

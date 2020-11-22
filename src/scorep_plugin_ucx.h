@@ -132,7 +132,7 @@ scorep_plugin_ucx::current_value_get(int32_t id, uint64_t *value, uint64_t *prev
          m_mpi_t_initialized = 1;
          /* get global rank */
          PMPI_Comm_rank(MPI_COMM_WORLD, &m_mpi_rank);
-         std::cout << "MPI_rank = " << m_mpi_rank << std::endl;
+         //std::cout << "MPI_rank = " << m_mpi_rank << std::endl;
        }
        is_value_updated = 1;
     }
