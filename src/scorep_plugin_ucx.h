@@ -28,14 +28,8 @@ using TimeValuePair = std::pair<scorep::chrono::ticks, double>;
 using MetricProperty = scorep::plugin::metric_property;
 using ThreadEventPair = std::tuple<ThreadId, std::string>;
 
-
-#if defined(SCOREP_PLUGIN_PER_THREAD_ENABLE)
 class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
     sync, per_thread, scorep_clock>
-#else
-class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
-    sync, per_thread, scorep_clock>
-#endif
 {
     public:
         scorep_plugin_ucx();
@@ -62,6 +56,19 @@ class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
 
         template <typename Proxy>
         void get_optional_value(int32_t id, Proxy& proxy);
+
+        /* Override, in order to set the delta_t */
+        static SCOREP_Metric_Plugin_Info
+        get_info()
+        {
+            SCOREP_Metric_Plugin_Info info =
+            scorep::plugin::base<scorep_plugin_ucx, sync, per_thread, scorep_clock>::get_info();
+#if !defined(SCOREP_PLUGIN_PROFILING_ENABLE)
+            /* Update the delta_t: Required for reduction of TRACING overhead */
+            info.delta_t = 8*80000;
+#endif
+            return info;
+        }
 
     private:
         /* Indicates whether or not MPI is initialized */
