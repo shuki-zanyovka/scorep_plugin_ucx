@@ -40,9 +40,9 @@ target_include_directories(scorep_plugin_ucx_profile PRIVATE
   ${UCX_INCLUDE_DIRS})
   
   
-target_compile_options(scorep_plugin_ucx INTERFACE -Wall -pedantic -Wextra -fPIC)
+target_compile_options(scorep_plugin_ucx INTERFACE -Wall -pedantic -Wextra)
 
-target_compile_options(scorep_plugin_ucx_profile INTERFACE -Wall -pedantic -Wextra -fPIC)
+target_compile_options(scorep_plugin_ucx_profile INTERFACE -Wall -pedantic -Wextra)
 target_compile_definitions(scorep_plugin_ucx_profile PUBLIC -DSCOREP_PLUGIN_PER_THREAD_ENABLE)
 
 
