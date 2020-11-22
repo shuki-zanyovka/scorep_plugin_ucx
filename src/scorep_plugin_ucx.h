@@ -31,10 +31,10 @@ using ThreadEventPair = std::tuple<ThreadId, std::string>;
 
 #if defined(SCOREP_PLUGIN_PER_THREAD_ENABLE)
 class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
-    sync_strict, per_thread, scorep_clock>
+    sync, per_thread, scorep_clock>
 #else
 class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
-    sync, once, scorep_clock>
+    sync, per_thread, scorep_clock>
 #endif
 {
     public:
@@ -127,7 +127,7 @@ scorep_plugin_ucx::current_value_get(int32_t id, uint64_t *value, uint64_t *prev
          PMPI_Comm_rank(MPI_COMM_WORLD, &m_mpi_rank);
          std::cout << "MPI_rank = " << m_mpi_rank << std::endl;
        }
-       is_value_updated = 0;
+       is_value_updated = 1;
     }
     else {
         /*
@@ -183,10 +183,7 @@ scorep_plugin_ucx::get_optional_value(int32_t id, Proxy& proxy)
     uint64_t prev_value;
 
     is_value_updated = current_value_get(id, &value, &prev_value);
-    if (is_value_updated) {
-        proxy.write(value);
-    }
-
+    proxy.write(value);
 }
 
 #endif /* _SCOREP_PLUGIN_UCX_H_ */

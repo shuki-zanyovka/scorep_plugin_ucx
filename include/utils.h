@@ -20,10 +20,6 @@ parse_metric (const std::string& metric, unsigned long long int *hex_dummy);
 std::size_t
 read_buffer_size ();
 
-#if 0
-boost::filesystem::path
-create_trace_directory ();
-#endif
 std::size_t
 to_mb (std::size_t nbytes);
 
