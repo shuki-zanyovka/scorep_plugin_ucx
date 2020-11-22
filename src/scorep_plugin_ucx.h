@@ -135,9 +135,7 @@ scorep_plugin_ucx::current_value_get(int32_t id, uint64_t *value, uint64_t *prev
            UCX statistics server is derived from the process_id.
            Also, all statistics are aggregated by MPI_rank 0 (root).
         */
-#if defined(SCOREP_PLUGIN_PER_THREAD_ENABLE)
         if (m_mpi_rank == 0) {
-#endif
             /* Get UCX statistics */
             ret = m_ucx_sampling.ucx_statistics_current_value_get(m_mpi_rank, id,
                       &m_ucx_counters_list, value, &prev_val);
@@ -152,9 +150,7 @@ scorep_plugin_ucx::current_value_get(int32_t id, uint64_t *value, uint64_t *prev
             else {
                 is_value_updated = 0;
             }
-#if defined(SCOREP_PLUGIN_PER_THREAD_ENABLE)
         }
-#endif
     }
 
     return is_value_updated;
