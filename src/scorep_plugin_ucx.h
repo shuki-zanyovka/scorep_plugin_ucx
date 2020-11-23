@@ -61,12 +61,17 @@ class scorep_plugin_ucx : public scorep::plugin::base<scorep_plugin_ucx,
         static SCOREP_Metric_Plugin_Info
         get_info()
         {
+            const char *profiling_enabled_env = getenv("SCOREP_ENABLE_PROFILING");
+
             SCOREP_Metric_Plugin_Info info =
             scorep::plugin::base<scorep_plugin_ucx, sync, per_thread, scorep_clock>::get_info();
-#if !defined(SCOREP_PLUGIN_PROFILING_ENABLE)
-            /* Update the delta_t: Required for reduction of TRACING overhead */
-            info.delta_t = 8*80000;
-#endif
+
+            /* Cannot update the delta_t when profiling */
+            if (strcmp(profiling_enabled_env, "true") != 0) {
+                /* Update the delta_t: Required for reduction of TRACING overhead */
+                info.delta_t = 8*80000;
+            }
+
             return info;
         }
 
